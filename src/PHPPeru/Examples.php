@@ -4,7 +4,7 @@ namespace PHPPeru;
 
 use Pimple;
 
-class Example
+class Examples
 {
     protected $c;
 
@@ -44,6 +44,31 @@ class Example
         $controller = $this->c['ioc_controller'];
 
         $controller->lightAction();
+
+        /** @var $controller IocController */
+        $controller = $this->c['ioc_controller'];
+
+        $controller->heavyAction();
+    }
+
+    public function goodAndFastExample()
+    {
+        $this->c['heavy_object_proxy'] = function($c) {
+            // @todo implement this :) !
+            return false;
+        };
+
+        $this->c['ioc_controller'] = function ($c) {
+            return new IocController($c['heavy_object_proxy']);
+        };
+
+
+        /** @var $controller IocController */
+        $controller = $this->c['ioc_controller'];
+
+        $controller->lightAction();
+
+
 
         /** @var $controller IocController */
         $controller = $this->c['ioc_controller'];

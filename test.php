@@ -1,19 +1,19 @@
 <?php
 
-use PHPPeru\Example;
+use PHPPeru\Examples;
 
 require __DIR__.'/vendor/autoload.php';
 
-$example = new Example();
+$examples = new Examples();
 
 $start = microtime(true);
-$example->nastyExample();
+$examples->nastyExample();
 echo 'nasty ........ ' . (microtime(true) - $start);
 
 echo "\n";
 
 $start = microtime(true);
-$example->goodExample();
+$examples->goodExample();
 echo 'good ........ ' . (microtime(true) - $start);
 
 echo "\n";
