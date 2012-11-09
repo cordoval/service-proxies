@@ -48,7 +48,7 @@ class ServiceProxyFactory
      * @param  string $className
      * @param  mixed  $identifier
      *
-     *@return object
+     * @return object
      */
     public function getProxy($className, $identifier)
     {
@@ -57,10 +57,8 @@ class ServiceProxyFactory
         if ( ! class_exists($fqn, false)) {
             $generator = $this->getProxyGenerator();
             $fileName = $generator->getProxyFileName($className);
-
-            if ($this->autoGenerate) {
-                $generator->generateProxyClass($this->em->getClassMetadata($className));
-            }
+            $classMetadata = new ServiceClassMetaData($className, $identifier);
+            $generator->generateProxyClass($classMetadata);
 
             require $fileName;
         }
