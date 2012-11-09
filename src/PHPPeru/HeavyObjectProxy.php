@@ -2,7 +2,7 @@
 
 namespace PHPPeru;
 
-class HeavyObjectProxy
+class HeavyObjectProxy extends HeavyObject
 {
     protected $wrappedHeavyObject;
 

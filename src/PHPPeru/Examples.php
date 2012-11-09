@@ -61,13 +61,10 @@ class Examples
             return new IocController($c['heavy_object_proxy']);
         };
 
-
         /** @var $controller IocController */
         $controller = $this->c['ioc_controller'];
 
         $controller->lightAction();
-
-
 
         /** @var $controller IocController */
         $controller = $this->c['ioc_controller'];

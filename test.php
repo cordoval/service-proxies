@@ -17,3 +17,9 @@ $examples->goodExample();
 echo 'good ........ ' . (microtime(true) - $start);
 
 echo "\n";
+
+$start = microtime(true);
+$examples->goodAndFastExample();
+echo 'good and fast ... ' . (microtime(true) - $start);
+
+echo "\n";
