@@ -54,7 +54,7 @@ class Examples
     public function goodAndFastExample()
     {
         $this->c['heavy_object_proxy'] = function($c) {
-            return new HeavyObjectProxy();
+            return new HeavyObjectProxy($c, 'heavy_object');
         };
 
         $this->c['ioc_controller'] = function ($c) {
