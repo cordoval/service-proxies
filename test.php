@@ -23,3 +23,9 @@ $examples->goodAndFastExample();
 echo 'good and fast ... ' . (microtime(true) - $start);
 
 echo "\n";
+
+$start = microtime(true);
+$examples->goodAndFastAndAutomaticExample();
+echo 'good and fast and automatic ' . (microtime(true) - $start);
+
+echo "\n";
