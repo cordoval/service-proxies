@@ -2,6 +2,8 @@
 
 namespace PHPPeru;
 
+use Pimple;
+
 class Example
 {
     protected $c;
@@ -9,16 +11,43 @@ class Example
     public function _construct()
     {
         $this->c = new Pimple();
+
+        $this->c['heavy_object'] = function($c) {
+            return new HeavyObject();
+        };
+
+        $this->c['ioc_controller'] = function ($c) {
+            return new IocController($c['heavy_object']);
+        };
+
+        $this->c['lazy_controller'] = function ($c) {
+            return new LazyController($c);
+        };
     }
 
     public function nastyExample()
     {
-        $this->c['my_controller'] = function ($c) {
+        /** @var $controller LazyController */
+        $controller = $this->c['lazy_controller'];
 
-        };
+        $controller->lightAction();
 
-        $this->c['heavy_object'] = function($c) {
+        /** @var $controller LazyController */
+        $controller = $this->c['lazy_controller'];
 
-        };
+        $controller->heavyAction();
+    }
+
+    public function goodExample()
+    {
+        /** @var $controller IocController */
+        $controller = $this->c['ioc_controller'];
+
+        $controller->lightAction();
+
+        /** @var $controller IocController */
+        $controller = $this->c['ioc_controller'];
+
+        $controller->heavyAction();
     }
 }

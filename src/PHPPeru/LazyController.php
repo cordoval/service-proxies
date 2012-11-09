@@ -2,7 +2,7 @@
 
 namespace PHPPeru;
 
-use Pimple\Pimple;
+use Pimple;
 
 class LazyController
 {

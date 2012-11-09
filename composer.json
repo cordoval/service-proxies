@@ -11,6 +11,6 @@
         }
     ],
     "autoload": {
-        "psr-0": { "src": "PHPPeru" }
+        "psr-0": { "PHPPeru": "src" }
     }
 }
