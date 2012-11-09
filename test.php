@@ -8,11 +8,12 @@ $example = new Example();
 
 $start = microtime(true);
 $example->nastyExample();
-echo microtime(true) - $start;
+echo 'nasty ........ ' . (microtime(true) - $start);
 
 echo "\n";
 
 $start = microtime(true);
 $example->goodExample();
-echo microtime(true) - $start;
+echo 'good ........ ' . (microtime(true) - $start);
 
+echo "\n";

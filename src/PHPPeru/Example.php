@@ -8,7 +8,7 @@ class Example
 {
     protected $c;
 
-    public function _construct()
+    public function __construct()
     {
         $this->c = new Pimple();
 

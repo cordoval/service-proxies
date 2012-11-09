@@ -6,7 +6,7 @@ class HeavyObject
 {
     protected $items;
 
-    public function _construct()
+    public function __construct()
     {
         $this->items = array();
 
