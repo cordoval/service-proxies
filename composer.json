@@ -1,0 +1,16 @@
+{
+    "require": {
+        "php": ">=5.3.0",
+        "doctrine/common": "dev-DCOM-96",
+        "pimple/pimple": "*"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "http://github.com/Ocramius/common.git"
+        }
+    ],
+    "autoload": {
+        "psr-0": { "src": "PHPPeru" }
+    }
+}
