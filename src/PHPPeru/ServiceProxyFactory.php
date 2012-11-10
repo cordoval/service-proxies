@@ -66,34 +66,8 @@ class ServiceProxyFactory
 
         $initializer = function (Proxy $proxy) use ($container, $identifier) {
             $proxy->__setInitializer(function () {});
-
-            if ($proxy->__isInitialized()) {
-                return;
-            }
-
-            $properties = $proxy->__getLazyLoadedPublicProperties();
-
-            foreach ($properties as $propertyName => $property) {
-                if (!isset($proxy->$propertyName)) {
-                    $proxy->$propertyName = $properties[$propertyName];
-                }
-            }
-
-            $proxy->__setInitialized(true);
-
-            if (method_exists($proxy, '__wakeup')) {
-                $proxy->__wakeup();
-            }
-
-
-            // we want to avoid using reflection for performance
-            $heavyObject = $container[reset($identifier)];
-            $reflClass = new \ReflectionClass($heavyObject);
-
-            foreach ($reflClass->getProperties() as $reflProperty) {
-                $reflProperty->setAccessible(true);
-                $reflProperty->setValue($proxy, $reflProperty->getValue($heavyObject));
-            }
+            $proxy->__isInitialized__ = true;
+            $proxy->__wrappedObject__ = $container[reset($identifier)];
         };
 
         $cloner = function (Proxy $proxy) {
@@ -140,14 +114,17 @@ class ServiceProxyFactory
 
 namespace <namespace>;
 
+require_once __DIR__ . '/../vendor/autoload.php';
+
+use Ladybug\Loader;
+
+Loader::loadHelpers();
+
 class <proxyClassName> extends \<className> implements \<baseProxyInterface>
 {
-    protected \$__wrappedObject__;
-
+    public \$__wrappedObject__;
     public \$__initializer__;
-
     public \$__cloner__;
-
     public \$__isInitialized__ = false;
 
     public static \$lazyPublicPropertiesDefaultValues = array(<lazyLoadedPublicPropertiesDefaultValues>);
@@ -217,7 +194,7 @@ class <proxyClassName> extends \<className> implements \<baseProxyInterface>
 
     public function __construct(\$initializer)
     {
-       \$this->__initializer = \$initializer;
+       \$this->__initializer__ = \$initializer;
     }
 
     public function __load()
@@ -226,7 +203,6 @@ class <proxyClassName> extends \<className> implements \<baseProxyInterface>
             \$this->__wrappedObject__ = \$this->__container__[\$this->__serviceId__];
         }
     }
-
     <methods>
 }
 EOT;
@@ -311,11 +287,11 @@ EOT;
 
             $methods .= $parameterString . ')';
             $methods .= "\n" . '    {' . "\n";
-
-            $methods .= '        call_user_func($this->__initializer__, $this, ' . var_export($name, true) . ', array('
-                . implode(', ', $parameters) . '));' . "\n\n";
+            //$methods .= 'ladybug_dump( $this);' . "\n";
+            //ladybug_dump(this)
+            $methods .= '        call_user_func($this->__initializer__, $this);' . "\n" ;
             $methods .= '        return $this->__wrappedObject__->' . $name . '(' . $argumentString . ');';
-            $methods .= "\n" . '    }' . "\n";
+            $methods .= "\n" . '    }';
         }
 
         return $methods;
