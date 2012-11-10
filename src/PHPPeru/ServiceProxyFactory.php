@@ -5,6 +5,7 @@ namespace PHPPeru;
 use Doctrine\Common\Util\ClassUtils;
 use Doctrine\Common\Proxy\Proxy;
 use Doctrine\Common\Proxy\ProxyGenerator;
+use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 
 /**
  * This factory is used to create proxy objects for services at runtime.
@@ -55,9 +56,9 @@ class ServiceProxyFactory
         $fqn = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
 
         if ( ! class_exists($fqn, false)) {
-            $generator = $this->getProxyGenerator();
-            $fileName = $generator->getProxyFileName($className);
             $classMetadata = new ServiceClassMetadata($className, $identifier);
+            $generator = $this->getProxyGenerator($classMetadata);
+            $fileName = $generator->getProxyFileName($className);
             $generator->generateProxyClass($classMetadata);
 
             require $fileName;
@@ -121,15 +122,145 @@ class ServiceProxyFactory
     /**
      * @return ProxyGenerator
      */
-    public function getProxyGenerator()
+    public function getProxyGenerator($classMetadata)
     {
         if (null === $this->proxyGenerator) {
+            $methods = $this->generateMethods($classMetadata);
             $this->proxyGenerator = new ProxyGenerator($this->proxyDir, $this->proxyNamespace);
-            $this->proxyGenerator->setPlaceholder('<wakeupImpl>', '');
-            $this->proxyGenerator->setPlaceholder('<cloneImpl>', '');
-            $this->proxyGenerator->setPlaceholder('<sleepImpl>', '');
+            $this->proxyGenerator->setProxyClassTemplate($this->getWrappedTemplate());           :
+            $this->proxyGenerator->setPlaceholders('<methods>', $methods);
         }
 
         return $this->proxyGenerator;
     }
+
+    public function getWrappedTemplate()
+    {
+        return <<<EOT
+<?php
+
+namespace <namespace>;
+
+class <proxyClassName> extends <className>
+{
+    protected $__wrappedObject__;
+
+    private $__container__;
+    private $__serviceId__;
+
+    public function __construct($container, $serviceId)
+    {
+        $this->__container__ = $container;
+        $this->__serviceId__ = $serviceId;
+    }
+
+    public function __load()
+    {
+        if (!$this->__wrappedObject__) {
+            $this->__wrappedObject__ = $this->__container__[$this->__serviceId__];
+        }
+    }
+
+    <methods>
+}
+EOT;
+
+    }
+
+    /**
+     * Generates decorated methods by picking those available in the parent class
+     *
+     * @param  ClassMetadata $class
+     *
+     * @return string
+     */
+    public function generateMethods(ClassMetadata $class)
+    {
+        $methods = '';
+        $methodNames = array();
+        $reflectionMethods = $class->getReflectionClass()->getMethods(\ReflectionMethod::IS_PUBLIC);
+        $skippedMethods = array(
+            '__sleep'   => true,
+            '__clone'   => true,
+            '__wakeup'  => true,
+            '__get'     => true,
+            '__set'     => true,
+        );
+
+        foreach ($reflectionMethods as $method) {
+            $name = $method->getName();
+
+            if (
+                $method->isConstructor()
+                || isset($skippedMethods[strtolower($name)])
+                || isset($methodNames[$name])
+                || $method->isFinal()
+                || $method->isStatic()
+                || ! $method->isPublic()
+            ) {
+                continue;
+            }
+
+            $methodNames[$name] = true;
+            $methods .= "\n" . '    public function ';
+
+            if ($method->returnsReference()) {
+                $methods .= '&';
+            }
+
+            $methods .= $name . '(';
+            $firstParam = true;
+            $parameterString = $argumentString = '';
+            $parameters = array();
+
+            foreach ($method->getParameters() as $param) {
+                if ($firstParam) {
+                    $firstParam = false;
+                } else {
+                    $parameterString .= ', ';
+                    $argumentString  .= ', ';
+                }
+
+                $paramClass = $param->getClass();
+
+                // We need to pick the type hint class too
+                if (null !== $paramClass) {
+                    $parameterString .= '\\' . $paramClass->getName() . ' ';
+                } elseif ($param->isArray()) {
+                    $parameterString .= 'array ';
+                }
+
+                if ($param->isPassedByReference()) {
+                    $parameterString .= '&';
+                }
+
+                $parameters[] = '$' . $param->getName();
+                $parameterString .= '$' . $param->getName();
+                $argumentString  .= '$' . $param->getName();
+
+                if ($param->isDefaultValueAvailable()) {
+                    $parameterString .= ' = ' . var_export($param->getDefaultValue(), true);
+                }
+            }
+
+            $methods .= $parameterString . ')';
+            $methods .= "\n" . '    {' . "\n";
+            if ($this->isShortIdentifierGetter($method, $class)) {
+                $identifier = lcfirst(substr($name, 3));
+                $cast = in_array($class->getTypeOfField($identifier), array('integer', 'smallint')) ? '(int) ' : '';
+
+                $methods .= '        if ($this->__isInitialized__ === false) {' . "\n";
+                $methods .= '            return ' . $cast . ' parent::' . $method->getName() . "();\n";
+                $methods .= '        }' . "\n\n";
+            }
+
+            $methods .= '        call_user_func($this->__initializer__, $this, ' . var_export($name, true) . ', array('
+                . implode(', ', $parameters) . '));' . "\n\n";
+            $methods .= '        return parent::' . $name . '(' . $argumentString . ');';
+            $methods .= "\n" . '    }' . "\n";
+        }
+
+        return $methods;
+    }
+
 }
