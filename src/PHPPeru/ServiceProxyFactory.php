@@ -141,12 +141,76 @@ class ServiceProxyFactory
 
 namespace <namespace>;
 
-class <proxyClassName> extends <className>
+class <proxyClassName> extends \<className> implements \<baseProxyInterface>
 {
     protected \$__wrappedObject__;
 
     private \$__container__;
     private \$__serviceId__;
+
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __isInitialized()
+    {
+        return \$this->__isInitialized__;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __setInitialized(\$initialized)
+    {
+        \$this->__isInitialized__ = \$initialized;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __setInitializer(\$initializer)
+    {
+        \$this->__initializer__ = \$initializer;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __getInitializer()
+    {
+        return \$this->__initializer__;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __setCloner(\$cloner)
+    {
+        \$this->__cloner__ = \$cloner;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __getCloner()
+    {
+        return \$this->__cloner__;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @private
+     */
+    public function __getLazyLoadedPublicProperties()
+    {
+        return self::\$lazyPublicPropertiesDefaultValues;
+    }
 
     public function __construct(\$container, \$serviceId)
     {
