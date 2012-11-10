@@ -148,6 +148,13 @@ class <proxyClassName> extends \<className> implements \<baseProxyInterface>
     private \$__container__;
     private \$__serviceId__;
 
+    public \$__initializer__;
+
+    public \$__cloner__;
+
+    public \$__isInitialized__ = false;
+
+    public static \$lazyPublicPropertiesDefaultValues = array(<lazyLoadedPublicPropertiesDefaultValues>);
 
     /**
      * {@inheritDoc}
