@@ -50,7 +50,7 @@ class ServiceProxyFactory
      *
      * @return object
      */
-    public function getProxy($className, $identifier)
+    public function getProxy($className, $identifier, $container)
     {
         $fqn = ClassUtils::generateProxyClassName($className, $this->proxyNamespace);
 
@@ -63,7 +63,7 @@ class ServiceProxyFactory
             require $fileName;
         }
 
-        $initializer = function (Proxy $proxy) {
+        $initializer = function (Proxy $proxy) use ($container, $identifier) {
             $proxy->__setInitializer(function () {});
             $proxy->__setCloner(function () {});
 
@@ -83,6 +83,14 @@ class ServiceProxyFactory
 
             if (method_exists($proxy, '__wakeup')) {
                 $proxy->__wakeup();
+            }
+
+            $heavyObject = $container[reset($identifier)];
+            $reflClass = new \ReflectionClass($heavyObject);
+
+            foreach ($reflClass->getProperties() as $reflProperty) {
+                $reflProperty->setAccessible(true);
+                $reflProperty->setValue($proxy, $reflProperty->getValue($heavyObject));
             }
         };
 
@@ -115,7 +123,6 @@ class ServiceProxyFactory
     {
         if (null === $this->proxyGenerator) {
             $this->proxyGenerator = new ProxyGenerator($this->proxyDir, $this->proxyNamespace);
-            $this->proxyGenerator->setPlaceholder('<baseProxyInterface>', 'Doctrine\Common\Proxy\Proxy');
         }
 
         return $this->proxyGenerator;

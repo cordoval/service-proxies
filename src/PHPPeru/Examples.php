@@ -83,7 +83,7 @@ class Examples
         };
 
         $this->c['heavy_object_proxy'] = function($c) {
-            return $c['proxy_factory']->getProxy("PHPPeru\\HeavyObject", array("heavy_object"));
+            return $c['proxy_factory']->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
         };
 
         $this->c['ioc_controller'] = function ($c) {
