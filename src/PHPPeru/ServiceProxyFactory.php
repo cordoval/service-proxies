@@ -123,6 +123,9 @@ class ServiceProxyFactory
     {
         if (null === $this->proxyGenerator) {
             $this->proxyGenerator = new ProxyGenerator($this->proxyDir, $this->proxyNamespace);
+            $this->proxyGenerator->setPlaceholder('<wakeupImpl>', '');
+            $this->proxyGenerator->setPlaceholder('<cloneImpl>', '');
+            $this->proxyGenerator->setPlaceholder('<sleepImpl>', '');
         }
 
         return $this->proxyGenerator;
