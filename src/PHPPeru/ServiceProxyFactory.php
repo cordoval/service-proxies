@@ -66,7 +66,6 @@ class ServiceProxyFactory
 
         $initializer = function (Proxy $proxy) use ($container, $identifier) {
             $proxy->__setInitializer(function () {});
-            $proxy->__setCloner(function () {});
 
             if ($proxy->__isInitialized()) {
                 return;
@@ -145,9 +144,6 @@ class <proxyClassName> extends \<className> implements \<baseProxyInterface>
 {
     protected \$__wrappedObject__;
 
-    private \$__container__;
-    private \$__serviceId__;
-
     public \$__initializer__;
 
     public \$__cloner__;
@@ -219,10 +215,9 @@ class <proxyClassName> extends \<className> implements \<baseProxyInterface>
         return self::\$lazyPublicPropertiesDefaultValues;
     }
 
-    public function __construct(\$container, \$serviceId)
+    public function __construct(\$initializer)
     {
-        \$this->__container__ = \$container;
-        \$this->__serviceId__ = \$serviceId;
+       \$this->__initializer = \$initializer;
     }
 
     public function __load()
