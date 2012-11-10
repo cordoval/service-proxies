@@ -85,6 +85,8 @@ class ServiceProxyFactory
                 $proxy->__wakeup();
             }
 
+
+            // we want to avoid using reflection for performance
             $heavyObject = $container[reset($identifier)];
             $reflClass = new \ReflectionClass($heavyObject);
 
