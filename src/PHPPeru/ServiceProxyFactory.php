@@ -127,8 +127,8 @@ class ServiceProxyFactory
         if (null === $this->proxyGenerator) {
             $methods = $this->generateMethods($classMetadata);
             $this->proxyGenerator = new ProxyGenerator($this->proxyDir, $this->proxyNamespace);
-            $this->proxyGenerator->setProxyClassTemplate($this->getWrappedTemplate());           :
-            $this->proxyGenerator->setPlaceholders('<methods>', $methods);
+            $this->proxyGenerator->setProxyClassTemplate($this->getWrappedTemplate());
+            $this->proxyGenerator->setPlaceholder('<methods>', $methods);
         }
 
         return $this->proxyGenerator;
@@ -143,21 +143,21 @@ namespace <namespace>;
 
 class <proxyClassName> extends <className>
 {
-    protected $__wrappedObject__;
+    protected \$__wrappedObject__;
 
-    private $__container__;
-    private $__serviceId__;
+    private \$__container__;
+    private \$__serviceId__;
 
-    public function __construct($container, $serviceId)
+    public function __construct(\$container, \$serviceId)
     {
-        $this->__container__ = $container;
-        $this->__serviceId__ = $serviceId;
+        \$this->__container__ = \$container;
+        \$this->__serviceId__ = \$serviceId;
     }
 
     public function __load()
     {
-        if (!$this->__wrappedObject__) {
-            $this->__wrappedObject__ = $this->__container__[$this->__serviceId__];
+        if (!\$this->__wrappedObject__) {
+            \$this->__wrappedObject__ = \$this->__container__[\$this->__serviceId__];
         }
     }
 
@@ -245,18 +245,10 @@ EOT;
 
             $methods .= $parameterString . ')';
             $methods .= "\n" . '    {' . "\n";
-            if ($this->isShortIdentifierGetter($method, $class)) {
-                $identifier = lcfirst(substr($name, 3));
-                $cast = in_array($class->getTypeOfField($identifier), array('integer', 'smallint')) ? '(int) ' : '';
-
-                $methods .= '        if ($this->__isInitialized__ === false) {' . "\n";
-                $methods .= '            return ' . $cast . ' parent::' . $method->getName() . "();\n";
-                $methods .= '        }' . "\n\n";
-            }
 
             $methods .= '        call_user_func($this->__initializer__, $this, ' . var_export($name, true) . ', array('
                 . implode(', ', $parameters) . '));' . "\n\n";
-            $methods .= '        return parent::' . $name . '(' . $argumentString . ');';
+            $methods .= '        return $this->__wrappedObject__->' . $name . '(' . $argumentString . ');';
             $methods .= "\n" . '    }' . "\n";
         }
 
