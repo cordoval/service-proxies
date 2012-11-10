@@ -78,17 +78,12 @@ class Examples
         $this->c['cache_dir'] = __DIR__.'/../../cache';
         $this->c['phpperu_namespace'] = 'PHPPeru';
 
-        $this->c['proxy_generator'] = function($c) {
-            return new ProxyGenerator($c['cache_dir'], $c['phpperu_namespace']);
+        $this->c['proxy_factory'] = function($c) {
+            return new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
         };
 
         $this->c['heavy_object_proxy'] = function($c) {
-            $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
-            $factory->setProxyGenerator($c['proxy_generator']);
-
-            $heavyObjectProxy = $factory->getProxy('HeavyObject', 'heavy_object');
-
-            return $heavyObjectProxy;
+            return $c['proxy_factory']->getProxy("PHPPeru\\HeavyObject", array("heavy_object"));
         };
 
         $this->c['ioc_controller'] = function ($c) {
