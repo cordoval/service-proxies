@@ -103,19 +103,9 @@ class Examples
 
     public function pimpleRefactorExample()
     {
-        $this->c['cache_dir'] = __DIR__.'/../../cache';
-        $this->c['phpperu_namespace'] = 'PHPPeru';
-
         $c = $this->c;
 
-        $originalClosure = function($c) { return new HeavyObject(); };
-
-        $c['heavy_object'] = $c->share(function ($c) use ($originalClosure) {
-
-            $c['heavy_object' . '_pimple_safe_object'] = $originalClosure;
-            $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
-            return $factory->getProxy("PHPPeru\\HeavyObject", array('heavy_object' . '_pimple_safe_object'), $c);
-        });
+        $this->buildService('heavy_object', function($c) { return new HeavyObject(); }, true, $c);
 
         $this->c['ioc_controller'] = function ($c) {
             return new IocController($c['heavy_object']);
@@ -130,5 +120,21 @@ class Examples
         $controller = $this->c['ioc_controller'];
 
         $controller->heavyAction();
+    }
+
+    public function buildService($serviceId, $originalClosure, $proxied = false, $c)
+    {
+        if ($proxied == true) {
+            $c[$serviceId] = $c->share(function ($c) use ($originalClosure, $serviceId) {
+                $this->c['cache_dir'] = __DIR__.'/../../cache';
+                $this->c['phpperu_namespace'] = 'PHPPeru';
+                $fqcn = get_class(call_user_func($originalClosure, null));
+                $c[$serviceId . '_pimple_safe_object'] = $originalClosure;
+                $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
+                return $factory->getProxy($fqcn, array($serviceId . '_pimple_safe_object'), $c);
+            });
+        } else {
+            $c[$serviceId] = $c->share($originalClosure);
+        }
     }
 }
