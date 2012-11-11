@@ -128,10 +128,10 @@ class Examples
             $c[$serviceId] = $c->share(function ($c) use ($originalClosure, $serviceId) {
                 $this->c['cache_dir'] = __DIR__.'/../../cache';
                 $this->c['phpperu_namespace'] = 'PHPPeru';
-                $fqcn = get_class(call_user_func($originalClosure, null));
+                //$fqcn = get_class(call_user_func($originalClosure, null));
                 $c[$serviceId . '_pimple_safe_object'] = $originalClosure;
                 $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
-                return $factory->getProxy($fqcn, array($serviceId . '_pimple_safe_object'), $c);
+                return $factory->getProxy("PHPPeru\\HeavyObject", array($serviceId . '_pimple_safe_object'), $c);
             });
         } else {
             $c[$serviceId] = $c->share($originalClosure);

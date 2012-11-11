@@ -10,7 +10,7 @@ class HeavyObject
     {
         $this->items = array();
 
-        foreach(range(1,1000000) as $value) {
+        foreach(range(1,10000000) as $value) {
             $this->items[] = $value;
         }
     }
