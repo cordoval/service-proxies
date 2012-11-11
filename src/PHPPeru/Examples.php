@@ -100,4 +100,35 @@ class Examples
 
         $controller->heavyAction();
     }
+
+    public function pimpleRefactorExample()
+    {
+        /*
+        $this->c['cache_dir'] = __DIR__.'/../../cache';
+        $this->c['phpperu_namespace'] = 'PHPPeru';
+
+
+        $this->c['proxy_factory'] = function($c) {
+            return new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
+        };
+
+        $this->c['heavy_object_proxy'] = function($c) {
+            return $c['proxy_factory']->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
+        };
+        */
+
+        $this->c['ioc_controller'] = function ($c) {
+            return new IocController($c['heavy_object']);
+        };
+
+        /** @var $controller IocController */
+        $controller = $this->c['ioc_controller'];
+
+        $controller->lightAction();
+
+        /** @var $controller IocController */
+        $controller = $this->c['ioc_controller'];
+
+        $controller->heavyAction();
+    }
 }
