@@ -114,7 +114,7 @@ class Examples
 
             $c['heavy_object' . '_pimple_safe_object'] = $originalClosure;
             $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
-            return $factory->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
+            return $factory->getProxy("PHPPeru\\HeavyObject", array('heavy_object' . '_pimple_safe_object'), $c);
         });
 
         $this->c['ioc_controller'] = function ($c) {
