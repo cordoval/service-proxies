@@ -67,7 +67,7 @@ class ServiceProxyFactory
         $initializer = function (Proxy $proxy) use ($container, $identifier) {
             $proxy->__setInitializer(function () {});
             $proxy->__isInitialized__ = true;
-            $proxy->__wrappedObject__ = $container[reset($identifier)];
+            $proxy->__wrappedObject__ = $container[reset($identifier) . '_pimple_safe_object'];
         };
 
         $cloner = function (Proxy $proxy) {

@@ -103,19 +103,21 @@ class Examples
 
     public function pimpleRefactorExample()
     {
-        /*
         $this->c['cache_dir'] = __DIR__.'/../../cache';
         $this->c['phpperu_namespace'] = 'PHPPeru';
 
+        $c = $this->c;
 
-        $this->c['proxy_factory'] = function($c) {
-            return new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
-        };
+        $originalClosure = function($c) { return new HeavyObject(); };
 
-        $this->c['heavy_object_proxy'] = function($c) {
-            return $c['proxy_factory']->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
-        };
-        */
+        $c['heavy_object'] = $c->share($c->extend('heavy_object', function ($heavyObject, $c) use ($originalClosure) {
+
+            $c['heavy_object' . '_pimple_safe_object'] = $originalClosure;
+            $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
+            $heavyObject = $factory->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
+
+            return $heavyObject;
+        }));
 
         $this->c['ioc_controller'] = function ($c) {
             return new IocController($c['heavy_object']);
