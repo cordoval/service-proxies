@@ -110,14 +110,12 @@ class Examples
 
         $originalClosure = function($c) { return new HeavyObject(); };
 
-        $c['heavy_object'] = $c->share($c->extend('heavy_object', function ($heavyObject, $c) use ($originalClosure) {
+        $c['heavy_object'] = $c->share(function ($c) use ($originalClosure) {
 
             $c['heavy_object' . '_pimple_safe_object'] = $originalClosure;
             $factory = new ServiceProxyFactory($c['cache_dir'], $c['phpperu_namespace']);
-            $heavyObject = $factory->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
-
-            return $heavyObject;
-        }));
+            return $factory->getProxy("PHPPeru\\HeavyObject", array("heavy_object"), $c);
+        });
 
         $this->c['ioc_controller'] = function ($c) {
             return new IocController($c['heavy_object']);
